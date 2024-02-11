@@ -34,7 +34,7 @@ func (s server) Create(_ context.Context, req *descChat.CreateRequest) (*descCha
 	if len(req.Usernames) != 0 {
 		id, err := rand.Int(rand.Reader, big.NewInt(123))
 		if err != nil {
-			return &descChat.CreateResponse{}, fmt.Errorf("failed to generate id: %v", err)
+			return nil, fmt.Errorf("failed to generate id: %v", err)
 		}
 
 		chat.ID = id.Int64()
@@ -47,7 +47,7 @@ func (s server) Create(_ context.Context, req *descChat.CreateRequest) (*descCha
 		}, nil
 	}
 
-	return &descChat.CreateResponse{}, fmt.Errorf("uesrnames does not exist")
+	return nil, fmt.Errorf("uesrnames does not exist")
 }
 
 func (s server) Delete(_ context.Context, req *descChat.DeleteRequest) (*emptypb.Empty, error) {
@@ -58,7 +58,7 @@ func (s server) Delete(_ context.Context, req *descChat.DeleteRequest) (*emptypb
 		return &emptypb.Empty{}, nil
 	}
 
-	return &emptypb.Empty{}, fmt.Errorf("chat not found")
+	return nil, fmt.Errorf("chat not found")
 }
 
 func (s server) SendMessage(_ context.Context, req *descChat.SendMessageRequest) (*emptypb.Empty, error) {
