@@ -66,7 +66,7 @@ func (s service) Create(ctx context.Context, req *pbChat.CreateRequest) (*pbChat
 
 func (s service) Delete(ctx context.Context, req *pbChat.DeleteRequest) (*empty.Empty, error) {
 	deleteBuilder := sq.Delete(tableChats).
-		Where(fmt.Sprintf("%s = ?", id), req.GetId()).
+		Where(sq.Eq{id: req.Id}).
 		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := deleteBuilder.ToSql()
@@ -80,7 +80,7 @@ func (s service) Delete(ctx context.Context, req *pbChat.DeleteRequest) (*empty.
 	}
 
 	deleteBuilder = sq.Delete(tableMessages).
-		Where(fmt.Sprintf("%s = ?", chatID), req.GetId()).
+		Where(sq.Eq{id: req.Id}).
 		PlaceholderFormat(sq.Dollar)
 
 	query, args, err = deleteBuilder.ToSql()
