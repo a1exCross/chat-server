@@ -10,6 +10,7 @@ install-deps:
 	mkdir -p bin
 	GOBIN=$(LOCAL_BIN) go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1
 	GOBIN=$(LOCAL_BIN) go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
+	GOBIN=$(LOCAL_BIN) go install github.com/pressly/goose/v3/cmd/goose@v3.14.0
 
 get-deps:
 	go get -u google.golang.org/protobuf/cmd/protoc-gen-go
@@ -27,3 +28,15 @@ generate-chat-api:
 	--go-grpc_out=pkg/chat_v1 --go-grpc_opt=paths=source_relative \
 	--plugin=protoc-gen-go-grpc=bin/protoc-gen-go-grpc \
 	api/chat_v1/chat.proto		
+
+go-build:
+	go build -o ./build/auth_server cmd/server/main.go
+
+docker-build:
+	docker buildx build --no-cache --platform linux/amd64 -t cr.selcloud.ru/alexzabolotskikh/chat_server .
+
+up-local:
+	docker-compose up -d
+
+run-app-local: up-local
+	go run cmd/server/main.go --config-path=local.env
