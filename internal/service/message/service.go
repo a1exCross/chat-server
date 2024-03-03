@@ -1,4 +1,4 @@
-package messageService
+package messageservice
 
 import (
 	"github.com/a1exCross/chat-server/internal/client/db"
@@ -12,6 +12,7 @@ type serv struct {
 	logsRepo    repository.LogsRepository
 }
 
+// NewService - создает сервисный слой для сообщений
 func NewService(messageRepo repository.MessagesRepository, tx db.TxManager, logsRepo repository.LogsRepository) service.MessageService {
 	return &serv{
 		messageRepo: messageRepo,

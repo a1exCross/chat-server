@@ -2,3 +2,4 @@
 /bin/
 local.env
 prod.env
+.vscode

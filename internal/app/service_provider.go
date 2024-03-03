@@ -7,6 +7,7 @@ import (
 	chatAPI "github.com/a1exCross/chat-server/internal/api/chat"
 	"github.com/a1exCross/chat-server/internal/client/db"
 	"github.com/a1exCross/chat-server/internal/client/db/pg"
+	"github.com/a1exCross/chat-server/internal/client/db/transaction"
 	"github.com/a1exCross/chat-server/internal/closer"
 	"github.com/a1exCross/chat-server/internal/config"
 	"github.com/a1exCross/chat-server/internal/repository"
@@ -14,6 +15,8 @@ import (
 	logsRepo "github.com/a1exCross/chat-server/internal/repository/log"
 	messagesRepo "github.com/a1exCross/chat-server/internal/repository/message"
 	"github.com/a1exCross/chat-server/internal/service"
+	chatService "github.com/a1exCross/chat-server/internal/service/chat"
+	messageService "github.com/a1exCross/chat-server/internal/service/message"
 )
 
 type serviceProvider struct {
@@ -65,7 +68,7 @@ func (s *serviceProvider) GRPCConfig() config.GRPCConfig {
 
 func (s *serviceProvider) DBClient(ctx context.Context) db.Client {
 	if s.dbClient == nil {
-		cl, err := pg.New(ctx, s.pgConfig.DSN())
+		cl, err := pg.New(ctx, s.PGConfig().DSN())
 		if err != nil {
 			log.Fatalf("failed to create db client: %v", err)
 		}
@@ -107,19 +110,42 @@ func (s *serviceProvider) LogsRepository(ctx context.Context) repository.LogsRep
 	return s.logsRepo
 }
 
-func (s *serviceProvider) TxManager(ctx context.Context) repository.LogsRepository {
+func (s *serviceProvider) TxManager(_ context.Context) db.TxManager {
 	if s.txManager == nil {
-		s.txManager = 
+		s.txManager = transaction.NewTransactionManager(s.dbClient.DB())
 	}
 
-	return s.logsRepo
+	return s.txManager
 }
 
-/* func (s *serviceProvider) ChatService() service.ChatServive {
+func (s *serviceProvider) ChatService(ctx context.Context) service.ChatServive {
 	if s.chatService == nil {
 		s.chatService = chatService.NewService(
 			s.ChatRepository(ctx),
-			s
+			s.TxManager(ctx),
+			s.LogsRepository(ctx),
 		)
 	}
-} */
+
+	return s.chatService
+}
+
+func (s *serviceProvider) MessageService(ctx context.Context) service.MessageService {
+	if s.messageService == nil {
+		s.messageService = messageService.NewService(
+			s.MessagesRepository(ctx),
+			s.TxManager(ctx),
+			s.LogsRepository(ctx),
+		)
+	}
+
+	return s.messageService
+}
+
+func (s *serviceProvider) ChatImplemetation(ctx context.Context) *chatAPI.Implementation {
+	if s.chatImpl == nil {
+		s.chatImpl = chatAPI.NewImplementation(s.ChatService(ctx), s.MessageService(ctx))
+	}
+
+	return s.chatImpl
+}

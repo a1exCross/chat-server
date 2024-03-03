@@ -15,12 +15,14 @@ import (
 
 type key string
 
+// TxKey - ключ хранения транзакции в контексте
 const TxKey key = "tx"
 
 type pg struct {
 	dbc *pgxpool.Pool
 }
 
+// NewDB - создает имплементацию подключения к БД
 func NewDB(dbc *pgxpool.Pool) db.DB {
 	return &pg{
 		dbc: dbc,
@@ -94,8 +96,9 @@ func (p *pg) Close() {
 	p.dbc.Close()
 }
 
-func MakeContext(ctx context.Context) context.Context {
-	return context.WithValue(ctx, TxKey, ctx)
+// MakeContext - кладет в context менеджер транзакций
+func MakeContext(ctx context.Context, tx pgx.Tx) context.Context {
+	return context.WithValue(ctx, TxKey, tx)
 }
 
 func logQuery(ctx context.Context, q db.Query, args ...interface{}) {

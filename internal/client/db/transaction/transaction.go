@@ -6,31 +6,32 @@ import (
 	"github.com/a1exCross/chat-server/internal/client/db"
 	"github.com/a1exCross/chat-server/internal/client/db/pg"
 	"github.com/jackc/pgx/v4"
-	"google.golang.org/protobuf/internal/errors"
+	"github.com/pkg/errors"
 )
 
 type manager struct {
 	db db.Transactor
 }
 
+// NewTransactionManager - создает новый менеджер транзакций
 func NewTransactionManager(db db.Transactor) db.TxManager {
 	return &manager{
 		db: db,
 	}
 }
 
-func (m *manager) transaction(ctx context.Context, opts pgx.TxOptions, fn db.Handler) error {
+func (m *manager) transaction(ctx context.Context, opts pgx.TxOptions, fn db.Handler) (err error) {
 	tx, ok := ctx.Value(pg.TxKey).(pgx.Tx)
 	if ok {
 		return fn(ctx)
 	}
 
-	tx, err := m.db.BeginTx(ctx, opts)
+	tx, err = m.db.BeginTx(ctx, opts)
 	if err != nil {
 		return errors.Wrap(err, "can`t begin transaction")
 	}
 
-	ctx = pg.MakeContext(ctx)
+	ctx = pg.MakeContext(ctx, tx)
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -60,9 +61,9 @@ func (m *manager) transaction(ctx context.Context, opts pgx.TxOptions, fn db.Han
 	return err
 }
 
-func (m *manager) ReadCommitted(ctx context.Context, fn db.Handler) error {
+func (m *manager) ReadCommitted(ctx context.Context, f db.Handler) error {
 	txOpts := pgx.TxOptions{
 		IsoLevel: pgx.ReadCommitted,
 	}
-	return m.transaction(ctx, txOpts, fn)
+	return m.transaction(ctx, txOpts, f)
 }

@@ -1,4 +1,4 @@
-package logRepository
+package logrepository
 
 import (
 	"context"
@@ -10,37 +10,23 @@ import (
 	"github.com/a1exCross/chat-server/internal/repository"
 )
 
-/* 	"github.com/a1exCross/auth/internal/client/db"
-"github.com/a1exCross/auth/internal/model"
-"github.com/a1exCross/auth/internal/repository" */
-
-const (
-	tableName = "logs"
-
-	idColumn        = "id"
-	actionColumn    = "action"
-	contentColumn   = "content"
-	timestampColumn = "timestamp"
-)
-
+// NewRepository - возвращает методы для работы с репозиторием логов
 func NewRepository(db db.Client) repository.LogsRepository {
-	return repo{
+	return &repo{
 		db: db,
 	}
-
-	return nil
 }
 
 type repo struct {
 	db db.Client
 }
 
-func (r repo) Create(ctx context.Context, params model.Log) (int64, error) {
-	insertBuilder := sq.Insert(tableName).
+func (r *repo) Create(ctx context.Context, params model.Log) (int64, error) {
+	insertBuilder := sq.Insert(repository.LogsTable).
 		PlaceholderFormat(sq.Dollar).
-		Columns(actionColumn, contentColumn).
+		Columns(repository.ActionColumn, repository.ContentColumn).
 		Values(params.Action, params.Content).
-		Suffix(fmt.Sprintf("RETURNING %s", idColumn))
+		Suffix(fmt.Sprintf("RETURNING %s", repository.IDColumn))
 
 	query, args, err := insertBuilder.ToSql()
 	if err != nil {
@@ -62,11 +48,11 @@ func (r repo) Create(ctx context.Context, params model.Log) (int64, error) {
 	return id, nil
 }
 
-func (r repo) Get(ctx context.Context, id int64) (model.Log, error) {
-	selectBuilder := sq.Select(actionColumn, contentColumn, timestampColumn).
+func (r *repo) Get(ctx context.Context, id int64) (model.Log, error) {
+	selectBuilder := sq.Select(repository.ActionColumn, repository.ContentColumn, repository.TimestampColumn).
 		PlaceholderFormat(sq.Dollar).
-		From(tableName).
-		Where(fmt.Sprintf("%s = ?", idColumn), id)
+		From(repository.LogsTable).
+		Where(sq.Eq{repository.IDColumn: id})
 
 	query, args, err := selectBuilder.ToSql()
 	if err != nil {
