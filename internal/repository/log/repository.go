@@ -10,6 +10,14 @@ import (
 	"github.com/a1exCross/chat-server/internal/repository"
 )
 
+const (
+	logsTable       = "logs"
+	idColumn        = "id"
+	contentColumn   = "content"
+	createdAtColumn = "created_at"
+	actionColumn    = "action"
+)
+
 // NewRepository - возвращает методы для работы с репозиторием логов
 func NewRepository(db db.Client) repository.LogsRepository {
 	return &repo{
@@ -22,11 +30,11 @@ type repo struct {
 }
 
 func (r *repo) Create(ctx context.Context, params model.Log) (int64, error) {
-	insertBuilder := sq.Insert(repository.LogsTable).
+	insertBuilder := sq.Insert(logsTable).
 		PlaceholderFormat(sq.Dollar).
-		Columns(repository.ActionColumn, repository.ContentColumn).
+		Columns(actionColumn, contentColumn).
 		Values(params.Action, params.Content).
-		Suffix(fmt.Sprintf("RETURNING %s", repository.IDColumn))
+		Suffix(fmt.Sprintf("RETURNING %s", idColumn))
 
 	query, args, err := insertBuilder.ToSql()
 	if err != nil {
@@ -49,10 +57,10 @@ func (r *repo) Create(ctx context.Context, params model.Log) (int64, error) {
 }
 
 func (r *repo) Get(ctx context.Context, id int64) (model.Log, error) {
-	selectBuilder := sq.Select(repository.ActionColumn, repository.ContentColumn, repository.TimestampColumn).
+	selectBuilder := sq.Select(actionColumn, contentColumn, createdAtColumn).
 		PlaceholderFormat(sq.Dollar).
-		From(repository.LogsTable).
-		Where(sq.Eq{repository.IDColumn: id})
+		From(logsTable).
+		Where(sq.Eq{idColumn: id})
 
 	query, args, err := selectBuilder.ToSql()
 	if err != nil {

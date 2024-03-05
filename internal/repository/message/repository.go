@@ -10,6 +10,18 @@ import (
 	"github.com/a1exCross/chat-server/internal/repository"
 )
 
+const (
+	chatsTable    = "chats"
+	messagesTable = "messages"
+	logsTable     = "logs"
+
+	idColumn        = "id"
+	contentColumn   = "content"
+	authorColumn    = "author"
+	createdAtColumn = "created_at"
+	chatIDColumn    = "chat_id"
+)
+
 type repo struct {
 	db db.Client
 }
@@ -22,9 +34,9 @@ func NewRepository(db db.Client) repository.MessagesRepository {
 }
 
 func (r *repo) Create(ctx context.Context, params model.MessageDTO) error {
-	query, args, err := sq.Select(repository.IDColumn).
-		From(repository.ChatsTable).
-		OrderBy(fmt.Sprintf("%s DESC", repository.IDColumn)).
+	query, args, err := sq.Select(idColumn).
+		From(chatsTable).
+		OrderBy(fmt.Sprintf("%s DESC", idColumn)).
 		Limit(1).
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
@@ -44,11 +56,11 @@ func (r *repo) Create(ctx context.Context, params model.MessageDTO) error {
 		return fmt.Errorf("error at query to database: %v", err)
 	}
 
-	insertBuilder := sq.Insert(repository.MessagesTable).
+	insertBuilder := sq.Insert(messagesTable).
 		PlaceholderFormat(sq.Dollar).
-		Columns(repository.ChatIDColumn, repository.AuthorColumn, repository.ContentColumn, repository.CreatedAtColumn).
+		Columns(chatIDColumn, authorColumn, contentColumn, createdAtColumn).
 		Values(lastChatID, params.Author, params.Content, params.CreatedAt).
-		Suffix(fmt.Sprintf("RETURNING %s", repository.IDColumn))
+		Suffix(fmt.Sprintf("RETURNING %s", idColumn))
 
 	query, args, err = insertBuilder.ToSql()
 	if err != nil {

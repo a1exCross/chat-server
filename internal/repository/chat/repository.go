@@ -10,6 +10,20 @@ import (
 	"github.com/a1exCross/chat-server/internal/repository"
 )
 
+const (
+	logsTable     = "logs"
+	chatsTable    = "chats"
+	messagesTable = "messages"
+
+	idColumn        = "id"
+	contentColumn   = "content"
+	createdAtColumn = "created_at"
+	actionColumn    = "action"
+	usernamesColumn = "usernames"
+	authorColumn    = "author"
+	chatIDColumn    = "chat_id"
+)
+
 type repo struct {
 	db db.Client
 }
@@ -20,11 +34,11 @@ func NewRepository(db db.Client) repository.ChatRepository {
 }
 
 func (r *repo) Create(ctx context.Context, params model.ChatDTO) (int64, error) {
-	insertBuilder := sq.Insert(repository.ChatsTable).
+	insertBuilder := sq.Insert(chatsTable).
 		PlaceholderFormat(sq.Dollar).
-		Columns(repository.UsernamesColumn).
+		Columns(usernamesColumn).
 		Values(params.Usernames).
-		Suffix(fmt.Sprintf("RETURNING %s", repository.IDColumn))
+		Suffix(fmt.Sprintf("RETURNING %s", idColumn))
 
 	query, args, err := insertBuilder.ToSql()
 	if err != nil {
@@ -47,8 +61,8 @@ func (r *repo) Create(ctx context.Context, params model.ChatDTO) (int64, error) 
 }
 
 func (r *repo) Delete(ctx context.Context, id int64) error {
-	deleteBuilder := sq.Delete(repository.ChatsTable).
-		Where(sq.Eq{repository.IDColumn: id}).
+	deleteBuilder := sq.Delete(chatsTable).
+		Where(sq.Eq{idColumn: id}).
 		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := deleteBuilder.ToSql()
@@ -66,8 +80,8 @@ func (r *repo) Delete(ctx context.Context, id int64) error {
 		return fmt.Errorf("error at query to database: %v", err)
 	}
 
-	deleteBuilder = sq.Delete(repository.MessagesTable).
-		Where(sq.Eq{repository.ChatIDColumn: id}).
+	deleteBuilder = sq.Delete(messagesTable).
+		Where(sq.Eq{chatIDColumn: id}).
 		PlaceholderFormat(sq.Dollar)
 
 	query, args, err = deleteBuilder.ToSql()
