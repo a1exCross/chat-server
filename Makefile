@@ -40,3 +40,15 @@ up-local:
 
 run-app-local: up-local
 	go run cmd/server/main.go --config-path=local.env
+
+test:
+	go clean -testcache
+	go test ./... -coverpkg=./internal...
+
+test-cover:
+	go clean -testcache
+	go test ./... -coverprofile=coverage.tmp.out -coverpkg=./internal...
+	grep -v 'mocks\|config' coverage.tmp.out  > coverage.out
+	rm coverage.tmp.out
+	go tool cover -html=coverage.out
+	go tool cover -func=./coverage.out | grep "total"

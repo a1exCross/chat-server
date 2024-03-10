@@ -5,10 +5,6 @@ import (
 	"log"
 
 	chatAPI "github.com/a1exCross/chat-server/internal/api/chat"
-	"github.com/a1exCross/chat-server/internal/client/db"
-	"github.com/a1exCross/chat-server/internal/client/db/pg"
-	"github.com/a1exCross/chat-server/internal/client/db/transaction"
-	"github.com/a1exCross/chat-server/internal/closer"
 	"github.com/a1exCross/chat-server/internal/config"
 	"github.com/a1exCross/chat-server/internal/repository"
 	chatRepo "github.com/a1exCross/chat-server/internal/repository/chat"
@@ -17,6 +13,10 @@ import (
 	"github.com/a1exCross/chat-server/internal/service"
 	chatService "github.com/a1exCross/chat-server/internal/service/chat"
 	messageService "github.com/a1exCross/chat-server/internal/service/message"
+	"github.com/a1exCross/common/pkg/client/db"
+	"github.com/a1exCross/common/pkg/client/db/pg"
+	"github.com/a1exCross/common/pkg/client/db/transaction"
+	"github.com/a1exCross/common/pkg/closer"
 )
 
 type serviceProvider struct {
