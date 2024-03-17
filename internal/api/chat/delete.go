@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	chatPb "github.com/a1exCross/chat-server/pkg/chat_v1"
+
 	"github.com/golang/protobuf/ptypes/empty"
 )
 

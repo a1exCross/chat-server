@@ -13,6 +13,7 @@ import (
 	"github.com/a1exCross/chat-server/internal/service"
 	chatService "github.com/a1exCross/chat-server/internal/service/chat"
 	messageService "github.com/a1exCross/chat-server/internal/service/message"
+
 	"github.com/a1exCross/common/pkg/client/db"
 	"github.com/a1exCross/common/pkg/client/db/pg"
 	"github.com/a1exCross/common/pkg/client/db/transaction"

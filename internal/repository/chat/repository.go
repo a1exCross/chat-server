@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	sq "github.com/Masterminds/squirrel"
 	"github.com/a1exCross/chat-server/internal/model"
 	"github.com/a1exCross/chat-server/internal/repository"
+
 	"github.com/a1exCross/common/pkg/client/db"
+
+	sq "github.com/Masterminds/squirrel"
 )
 
 const (

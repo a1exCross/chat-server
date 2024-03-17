@@ -11,6 +11,7 @@ import (
 	"github.com/a1exCross/chat-server/internal/service"
 	"github.com/a1exCross/chat-server/internal/service/mocks"
 	"github.com/a1exCross/chat-server/pkg/chat_v1"
+
 	"github.com/gojuno/minimock/v3"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/stretchr/testify/require"

@@ -8,7 +8,9 @@ import (
 
 	"github.com/a1exCross/chat-server/internal/config"
 	"github.com/a1exCross/chat-server/pkg/chat_v1"
+
 	"github.com/a1exCross/common/pkg/closer"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
