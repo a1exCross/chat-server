@@ -3,3 +3,4 @@
 local.env
 prod.env
 .vscode
+coverage.out

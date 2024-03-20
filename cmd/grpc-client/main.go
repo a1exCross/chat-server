@@ -6,11 +6,11 @@ import (
 	"log"
 	"time"
 
+	descChat "github.com/a1exCross/chat-server/pkg/chat_v1"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/types/known/timestamppb"
-
-	descChat "github.com/a1exCross/chat-server/pkg/chat_v1"
 )
 
 const (
