@@ -4,33 +4,77 @@ package chat_v1;
 
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package = "github.com/a1exCross/chat-server/pkg/chat_v1;chat_v1";
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+    info: {
+        title: "Chat API"
+        version: "1.0.0"
+        contact: {
+            name: "Alexandr Zabolotskikh"
+            email: "some-mail@mail.ru"
+        };
+    };
+
+    host: "localhost:8081"
+    schemes: HTTP,
+    schemes: HTTPS,
+    consumes: "application/json",
+    produces: "application/json",
+};
 
 service ChatV1 {
-    rpc Create(CreateRequest) returns (CreateResponse);
-    rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
-    rpc SendMessage(SendMessageRequest) returns (google.protobuf.Empty);
+    // Создает новый чат для указываемых собеседников
+    rpc Create(CreateRequest) returns (CreateResponse) {
+        option (google.api.http) = {
+            post: "/chat/v1"
+            body: "*"
+        };
+    };
+
+    // Удаляет чат по id
+    rpc Delete(DeleteRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+          delete: "/chat/v1"
+        };
+    };
+
+    // Отправляет в чат сообщение от указанного пользователя
+    rpc SendMessage(SendMessageRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+          post: "/chat/v1/send"
+          body: "*"
+        };
+    };
 }
 
 message CreateRequest {
-    repeated string usernames = 1;
+    // Участники чата
+    repeated string usernames = 1 [(validate.rules).repeated = {min_items: 2}];
 }
 
 message CreateResponse {
-    int64 id = 1;
+    // Идентификатор созданного чата
+    int64 id = 1 [(validate.rules).int64.gt = 0];
 }
 
 message DeleteRequest {
-    int64 id = 1;
+    // Идентификатор удаляемого чата
+    int64 id = 1 [(validate.rules).int64.gt = 0];
 }
 
 message Message {
-    string from = 1;
-    string text = 2;
+    // Отправитель
+    string from = 1 [(validate.rules).string = {min_len: 1}];
+    // Текст сообщения
+    string text = 2 [(validate.rules).string = {min_len: 1}];
+    // Время отправления сообщения
     google.protobuf.Timestamp timestamp = 3;
 }
 
 message SendMessageRequest {
-   Message message = 1;
+   Message message = 1 [(validate.rules).message = {required: true}];
 }
