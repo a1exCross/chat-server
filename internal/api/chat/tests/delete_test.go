@@ -20,7 +20,7 @@ func TestDelete(t *testing.T) {
 	ctx := context.Background()
 	mc := minimock.NewController(t)
 
-	type mockChat func(mc *minimock.Controller) service.ChatServive
+	type mockChat func(mc *minimock.Controller) service.ChatService
 	type mockMessage func(mc *minimock.Controller) service.MessageService
 
 	id := int64(1)
@@ -44,8 +44,8 @@ func TestDelete(t *testing.T) {
 			err:      nil,
 			req:      deleteReq,
 			expected: &emptypb.Empty{},
-			mockChat: func(mc *minimock.Controller) service.ChatServive {
-				mock := mocks.NewChatServiveMock(t)
+			mockChat: func(mc *minimock.Controller) service.ChatService {
+				mock := mocks.NewChatServiceMock(t)
 				mock.DeleteMock.Expect(ctx, id).Return(nil)
 
 				return mock
@@ -62,8 +62,8 @@ func TestDelete(t *testing.T) {
 			err:      errors.New("failed to delete chat: error"),
 			req:      deleteReq,
 			expected: nil,
-			mockChat: func(mc *minimock.Controller) service.ChatServive {
-				mock := mocks.NewChatServiveMock(t)
+			mockChat: func(mc *minimock.Controller) service.ChatService {
+				mock := mocks.NewChatServiceMock(t)
 				mock.DeleteMock.Expect(ctx, id).Return(errors.New("error"))
 
 				return mock

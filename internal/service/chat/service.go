@@ -14,7 +14,7 @@ type serv struct {
 }
 
 // NewService - создает сервисный слой для чатов
-func NewService(chatRepo repository.ChatRepository, tx db.TxManager, logsRepo repository.LogsRepository) service.ChatServive {
+func NewService(chatRepo repository.ChatRepository, tx db.TxManager, logsRepo repository.LogsRepository) service.ChatService {
 	return &serv{
 		chatRepo:  chatRepo,
 		txManager: tx,

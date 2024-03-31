@@ -23,7 +23,7 @@ func TestSend(t *testing.T) {
 	ctx := context.Background()
 	mc := minimock.NewController(t)
 
-	type mockChat func(mc *minimock.Controller) service.ChatServive
+	type mockChat func(mc *minimock.Controller) service.ChatService
 	type mockMessage func(mc *minimock.Controller) service.MessageService
 
 	timeNow := time.Now().UTC()
@@ -57,8 +57,8 @@ func TestSend(t *testing.T) {
 			err:      nil,
 			req:      createReq,
 			expected: &emptypb.Empty{},
-			mockChat: func(mc *minimock.Controller) service.ChatServive {
-				mock := mocks.NewChatServiveMock(t)
+			mockChat: func(mc *minimock.Controller) service.ChatService {
+				mock := mocks.NewChatServiceMock(t)
 
 				return mock
 			},
@@ -75,8 +75,8 @@ func TestSend(t *testing.T) {
 			err:      errors.New("failed to send message: error"),
 			req:      createReq,
 			expected: nil,
-			mockChat: func(mc *minimock.Controller) service.ChatServive {
-				mock := mocks.NewChatServiveMock(t)
+			mockChat: func(mc *minimock.Controller) service.ChatService {
+				mock := mocks.NewChatServiceMock(t)
 
 				return mock
 			},

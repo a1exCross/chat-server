@@ -37,7 +37,7 @@ require (
 )
 
 require (
-	github.com/a1exCross/common v0.0.0-20240317101834-623ba8f8cef6
+	github.com/a1exCross/common v0.0.0-20240329205658-d19c13bf9ee4
 	github.com/georgysavva/scany v1.2.1 // indirect
 	github.com/jackc/pgx/v4 v4.18.3
 	github.com/joho/godotenv v1.5.1
