@@ -3,12 +3,15 @@ package interceptor
 import (
 	"context"
 	"errors"
+	"strings"
 
-	"github.com/a1exCross/chat-server/internal/api"
 	"github.com/a1exCross/chat-server/internal/client"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
+
+const authPrefix = "Bearer "
 
 // AccessChecker - верификатор доступа
 type AccessChecker interface {
@@ -28,7 +31,26 @@ func NewAccessChecker(auth client.AuthService) AccessChecker {
 
 // AccessCheck - проверка доступа к ручке
 func (c *checker) AccessCheck(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	err := c.authClient.Check(ctx, api.RouteAccesses[info.FullMethod]...)
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, errors.New("metadata is not provided")
+	}
+
+	authHeader, ok := md["authorization"]
+	if !ok || len(authHeader) == 0 {
+		return nil, errors.New("authorization header is not provided")
+	}
+
+	if !strings.HasPrefix(authHeader[0], authPrefix) {
+		return nil, errors.New("invalid authorization header")
+	}
+
+	accessToken := strings.TrimPrefix(authHeader[0], authPrefix)
+
+	md = metadata.New(map[string]string{"Authorization": authPrefix + accessToken})
+	ctx = metadata.NewOutgoingContext(ctx, md)
+
+	err := c.authClient.Check(ctx, info.FullMethod)
 	if err != nil {
 		return nil, errors.New("access denied")
 	}

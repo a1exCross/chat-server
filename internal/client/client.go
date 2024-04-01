@@ -5,11 +5,9 @@ package client
 
 import (
 	"context"
-
-	"github.com/a1exCross/chat-server/internal/model"
 )
 
 // AuthService - сервис авторизации и аутентификации
 type AuthService interface {
-	Check(ctx context.Context, role ...model.UserRole) error
+	Check(ctx context.Context, endpoint string) error
 }
