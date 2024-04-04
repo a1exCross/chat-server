@@ -8,12 +8,12 @@ import (
 // Implementation - структура, описывающая имплементацию gRPC сервера
 type Implementation struct {
 	chatPb.UnimplementedChatV1Server
-	chatServ    service.ChatServive
+	chatServ    service.ChatService
 	messageServ service.MessageService
 }
 
 // NewImplementation - создает новую имплементацию для gRPC сервера
-func NewImplementation(chatServ service.ChatServive, messageServ service.MessageService) *Implementation {
+func NewImplementation(chatServ service.ChatService, messageServ service.MessageService) *Implementation {
 	return &Implementation{
 		chatServ:    chatServ,
 		messageServ: messageServ,

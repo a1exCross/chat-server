@@ -31,3 +31,8 @@ type GRPCConfig interface {
 type PGConfig interface {
 	DSN() string
 }
+
+// AuthConfig - конфиг сервиса Auth
+type AuthConfig interface {
+	Address() string
+}

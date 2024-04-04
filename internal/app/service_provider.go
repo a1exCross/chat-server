@@ -5,7 +5,10 @@ import (
 	"log"
 
 	chatAPI "github.com/a1exCross/chat-server/internal/api/chat"
+	"github.com/a1exCross/chat-server/internal/client"
+	"github.com/a1exCross/chat-server/internal/client/auth"
 	"github.com/a1exCross/chat-server/internal/config"
+	"github.com/a1exCross/chat-server/internal/interceptor"
 	"github.com/a1exCross/chat-server/internal/repository"
 	chatRepo "github.com/a1exCross/chat-server/internal/repository/chat"
 	logsRepo "github.com/a1exCross/chat-server/internal/repository/log"
@@ -25,6 +28,7 @@ type serviceProvider struct {
 	grpcConfig    config.GRPCConfig
 	httpConfig    config.HTTPConfig
 	swaggerConfig config.HTTPConfig
+	authConfig    config.AuthConfig
 
 	dbClient  db.Client
 	txManager db.TxManager
@@ -33,10 +37,14 @@ type serviceProvider struct {
 	messagesRepo repository.MessagesRepository
 	logsRepo     repository.LogsRepository
 
-	chatService    service.ChatServive
+	chatService    service.ChatService
 	messageService service.MessageService
 
 	chatImpl *chatAPI.Implementation
+
+	authClient client.AuthService
+
+	accessChecker interceptor.AccessChecker
 }
 
 func newServiceProvider() *serviceProvider {
@@ -67,6 +75,19 @@ func (s *serviceProvider) GRPCConfig() config.GRPCConfig {
 	}
 
 	return s.grpcConfig
+}
+
+func (s *serviceProvider) AuthConfig() config.AuthConfig {
+	if s.authConfig == nil {
+		cfg, err := config.NewAuthConfig()
+		if err != nil {
+			log.Fatalf("failed to get auth config: %v", err)
+		}
+
+		s.authConfig = cfg
+	}
+
+	return s.authConfig
 }
 
 func (s *serviceProvider) HTTPConfig() config.HTTPConfig {
@@ -147,7 +168,7 @@ func (s *serviceProvider) TxManager(_ context.Context) db.TxManager {
 	return s.txManager
 }
 
-func (s *serviceProvider) ChatService(ctx context.Context) service.ChatServive {
+func (s *serviceProvider) ChatService(ctx context.Context) service.ChatService {
 	if s.chatService == nil {
 		s.chatService = chatService.NewService(
 			s.ChatRepository(ctx),
@@ -171,10 +192,31 @@ func (s *serviceProvider) MessageService(ctx context.Context) service.MessageSer
 	return s.messageService
 }
 
-func (s *serviceProvider) ChatImplemetation(ctx context.Context) *chatAPI.Implementation {
+func (s *serviceProvider) ChatImplementation(ctx context.Context) *chatAPI.Implementation {
 	if s.chatImpl == nil {
 		s.chatImpl = chatAPI.NewImplementation(s.ChatService(ctx), s.MessageService(ctx))
 	}
 
 	return s.chatImpl
+}
+
+func (s *serviceProvider) AuthClient(_ context.Context) client.AuthService {
+	if s.authClient == nil {
+		authClient, err := auth.NewAuthClient(s.AuthConfig())
+		if err != nil {
+			log.Fatalf("failed to connect auth service: %v", err)
+		}
+
+		s.authClient = authClient
+	}
+
+	return s.authClient
+}
+
+func (s *serviceProvider) AccessChecker(ctx context.Context) interceptor.AccessChecker {
+	if s.accessChecker == nil {
+		s.accessChecker = interceptor.NewAccessChecker(s.AuthClient(ctx))
+	}
+
+	return s.accessChecker
 }

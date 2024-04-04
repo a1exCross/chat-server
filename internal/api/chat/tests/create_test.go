@@ -19,7 +19,7 @@ func TestCreate(t *testing.T) {
 	ctx := context.Background()
 	mc := minimock.NewController(t)
 
-	type mockChat func(mc *minimock.Controller) service.ChatServive
+	type mockChat func(mc *minimock.Controller) service.ChatService
 	type mockMessage func(mc *minimock.Controller) service.MessageService
 
 	createChatDTO := model.ChatDTO{
@@ -51,8 +51,8 @@ func TestCreate(t *testing.T) {
 			err:      nil,
 			req:      createReq,
 			expected: createRes,
-			mockChat: func(mc *minimock.Controller) service.ChatServive {
-				mock := mocks.NewChatServiveMock(t)
+			mockChat: func(mc *minimock.Controller) service.ChatService {
+				mock := mocks.NewChatServiceMock(t)
 				mock.CreateMock.Expect(ctx, createChatDTO).Return(id, nil)
 
 				return mock
@@ -69,8 +69,8 @@ func TestCreate(t *testing.T) {
 			err:      errors.New("failed to create chat: error"),
 			req:      createReq,
 			expected: nil,
-			mockChat: func(mc *minimock.Controller) service.ChatServive {
-				mock := mocks.NewChatServiveMock(t)
+			mockChat: func(mc *minimock.Controller) service.ChatService {
+				mock := mocks.NewChatServiceMock(t)
 				mock.CreateMock.Expect(ctx, createChatDTO).Return(0, errors.New("error"))
 
 				return mock
